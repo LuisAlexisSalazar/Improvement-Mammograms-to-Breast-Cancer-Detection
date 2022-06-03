@@ -1,3 +1,15 @@
+# Datasets MIAS
+data/dataset_raw/MIAS/Info.txt
+data/dataset_raw/MIAS/Licence.txt
+data/dataset_raw/MIAS/MIAS.tar.gz
+data/dataset_raw/MIAS/README
+data/dataset_raw/MIAS/*.pgm
+data/dataset_raw/MINI-DDSM/Data-MoreThanTwoMasks
+data/dataset_raw/MINI-DDSM/MINI-DDSM-Complete-JPEG-8
+data/dataset_raw/MINI-DDSM/MINI-DDSM-Complete-PNG-16
+data/dataset_raw/MINI-DDSM/MINI-DDSM.zip
+*.pgm
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -76,6 +88,7 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+*.ipynb_checkpoints
 
 # IPython
 profile_default/
