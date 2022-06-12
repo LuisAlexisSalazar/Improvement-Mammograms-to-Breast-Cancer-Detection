@@ -1,4 +1,7 @@
 # Datasets MIAS
+.idea/*
+logs/
+data/dataset_raw/*
 data/dataset_raw/MIAS/Info.txt
 data/dataset_raw/MIAS/Licence.txt
 data/dataset_raw/MIAS/MIAS.tar.gz
