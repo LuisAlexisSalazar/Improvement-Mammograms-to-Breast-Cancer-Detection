@@ -1,9 +1,11 @@
 import zipfile
 import tarfile
-import os
+
 import pandas as pd
 import cv2
-from src.settings.config import PATH_DATA_RAW, DEFAULT_MODE_CLASSIFICATION
+from src.settings.config import PATH_DATA_RAW, MODE_DOWNLOAD_DEFAULT
+from src.utils.create_image import *
+from src.utils.folders import *
 
 
 def unzip_zip(path_data_set, name_file):
@@ -74,68 +76,90 @@ def create_df_dataset_MINI_DDSM(
     return df_mammogram
 
 
-def separate_image_folders(path_base, name_dataset, mode_classification=DEFAULT_MODE_CLASSIFICATION):
-    if mode_classification == DEFAULT_MODE_CLASSIFICATION:
-        dir_binary_classification = path_base + "/binary_classification"
-        # dir_classification = path_data_set + ""
-        if not os.path.exists(dir_binary_classification):
-            os.mkdir(dir_binary_classification)
+# ? path_base es el folder esta las iamgenes crudas
+def separate_image_folders(path_base, name_dataset, mode_classification=MODE_DOWNLOAD_DEFAULT):
+    dir_binary_classification = path_base + "/" + mode_classification
+    if mode_classification == "BinaryNM":
+        path_binary_classification_normal = dir_binary_classification + "/normal"
+        path_binary_classification_maligno = dir_binary_classification + "/maligno"
+        list_sub_folders = [path_binary_classification_normal, path_binary_classification_maligno]
+
+        if create_all_folder(dir_binary_classification, list_sub_folders):
+            # --MIAS
+            if name_dataset == "MIAS":
+                df_mias = create_df_dataset_MIAS()
+                read_image_separate_MIAS(df_mias, list_sub_folders,
+                                         path_base, mode_classification)
+            # --MINI-DDSM
+            elif name_dataset == "MINI-DDSM":  # CBIS
+                df_MINI_DDSM = create_df_dataset_MINI_DDSM()
+                read_image_separate_MINI_DDSM(df_MINI_DDSM, list_sub_folders,
+                                              path_base, mode_classification)
+    elif mode_classification == "BinaryBM":
 
         path_binary_classification_benigno = dir_binary_classification + "/benigno"
         path_binary_classification_maligno = dir_binary_classification + "/maligno"
-        if not os.path.exists(path_binary_classification_benigno):
-            os.mkdir(path_binary_classification_benigno)
+        list_sub_folders = [path_binary_classification_benigno, path_binary_classification_maligno]
 
-        if not os.path.exists(path_binary_classification_maligno):
-            os.mkdir(path_binary_classification_maligno)
-
-        if len(os.listdir(path_binary_classification_benigno)) == 0 and len(
-                os.listdir(path_binary_classification_maligno)) == 0:
+        if create_all_folder(dir_binary_classification, list_sub_folders):
+            # --MIAS
             if name_dataset == "MIAS":
                 df_mias = create_df_dataset_MIAS()
-                df_mias = df_mias.dropna(subset=['abn_class'])  # Class B and M
-                # df_mias["abn_class"] = df_mias['abn_class'].replace(['M'], 'M')
-                # df_mias["abn_class"] = df_mias['abn_class'].replace(['B'], 'N')
-                # df_mias["abn_class"] = df_mias['abn_class'].replace([None], 'N')
-
-                df_mias = df_mias[["name_file", "abn_class"]]
-
-                # path = "data/dataset_raw/MIAS/"
-                # path_data_set = path_data_set + "MIAS/"
-                for index, row in df_mias.iterrows():
-                    img = cv2.imread(path_base + row['name_file'] + ".pgm", cv2.IMREAD_GRAYSCALE)
-                    img = cv2.resize(img, (224, 224))
-
-                    if row['abn_class'] == 'B':
-                        cv2.imwrite(path_binary_classification_benigno + "/" + row['name_file'] + ".jpg", img)
-                    else:  # M
-                        cv2.imwrite(path_binary_classification_maligno + "/" + row['name_file'] + ".jpg", img)
+                read_image_separate_MIAS(df_mias, list_sub_folders,
+                                         path_base, mode_classification)
+            # --MINI-DDSM
             elif name_dataset == "MINI-DDSM":  # CBIS
-                df_CBIS = create_df_dataset_MINI_DDSM()
-                # df_CBIS["Status"] = df_CBIS['Status'].replace(['Benign', 'Normal'], 'N')
-                # df_CBIS["Status"] = df_CBIS['Status'].replace(['Cancer'], 'M')
-                # print(len(df_CBIS))
-                df_CBIS.drop(df_CBIS.loc[df_CBIS['Status'] == 'Normal'].index, inplace=True)
-                # print(len(df_CBIS))
+                df_MINI_DDSM = create_df_dataset_MINI_DDSM()
+                read_image_separate_MINI_DDSM(df_MINI_DDSM, list_sub_folders,
+                                              path_base, mode_classification)
+    elif mode_classification == "BinaryBN":
+        path_binary_classification_benigno = dir_binary_classification + "/benigno"
+        path_binary_classification_normal = dir_binary_classification + "/normal"
+        list_sub_folders = [path_binary_classification_benigno, path_binary_classification_normal]
 
-                df_CBIS["Status"] = df_CBIS['Status'].replace(['Benign'], 'B')
-                df_CBIS["Status"] = df_CBIS['Status'].replace(['Cancer'], 'M')
+        if create_all_folder(dir_binary_classification, list_sub_folders):
+            # --MIAS
+            if name_dataset == "MIAS":
+                df_mias = create_df_dataset_MIAS()
+                read_image_separate_MIAS(df_mias, list_sub_folders,
+                                         path_base, mode_classification)
+            # --MINI-DDSM
+            elif name_dataset == "MINI-DDSM":  # CBIS
+                df_MINI_DDSM = create_df_dataset_MINI_DDSM()
+                read_image_separate_MINI_DDSM(df_MINI_DDSM, list_sub_folders,
+                                              path_base, mode_classification)
+    elif mode_classification == "Binary(BM)N":
+        path_binary_classification_tumoral = dir_binary_classification + "/tumoral"
+        path_binary_classification_normal = dir_binary_classification + "/normal"
+        list_sub_folders = [path_binary_classification_tumoral, path_binary_classification_normal]
 
-                df_CBIS = df_CBIS[["fullPath", "Status", "fileName"]]
-                folder_base_images = "MINI-DDSM-Complete-JPEG-8/"
-                path_folder_to_read_images = path_base + folder_base_images
-                for index, row in df_CBIS.iterrows():
-                    img = cv2.imread(path_folder_to_read_images + row['fullPath'], cv2.IMREAD_GRAYSCALE)
-                    # cv2.imshow('image', img)
-                    # cv2.waitKey(0)
-                    img = cv2.resize(img, (224, 224))
+        if create_all_folder(dir_binary_classification, list_sub_folders):
+            # --MIAS
+            if name_dataset == "MIAS":
+                df_mias = create_df_dataset_MIAS()
+                read_image_separate_MIAS(df_mias, list_sub_folders,
+                                         path_base, mode_classification)
+            # --MINI-DDSM
+            elif name_dataset == "MINI-DDSM":  # CBIS
+                df_MINI_DDSM = create_df_dataset_MINI_DDSM()
+                read_image_separate_MINI_DDSM(df_MINI_DDSM, list_sub_folders,
+                                              path_base, mode_classification)
+    elif mode_classification == "ClassBMN":
 
-                    if row['Status'] == 'B':
-                        cv2.imwrite(path_binary_classification_benigno + "/" + row['fileName'], img)
-                    else:  # M
-                        cv2.imwrite(path_binary_classification_maligno + "/" + row['fileName'], img)
-                    # break
+        path_binary_classification_benigno = dir_binary_classification + "/beningno"
+        path_binary_classification_maligno = dir_binary_classification + "/maligno"
+        path_binary_classification_normal = dir_binary_classification + "/normal"
+        list_sub_folders = [path_binary_classification_benigno, path_binary_classification_maligno,
+                            path_binary_classification_normal]
 
-    # toDo: Crear directorio donde tendra 3 carpetas separando las 3 Class Benigno, maligno y estado normal
-    else:
-        pass
+        if create_all_folder(dir_binary_classification, list_sub_folders):
+            # --MIAS
+            if name_dataset == "MIAS":
+                df_mias = create_df_dataset_MIAS()
+                read_image_separate_MIAS(df_mias, list_sub_folders,
+                                         path_base, mode_classification)
+            # --MINI-DDSM
+            elif name_dataset == "MINI-DDSM":  # CBIS
+                df_MINI_DDSM = create_df_dataset_MINI_DDSM()
+                read_image_separate_MINI_DDSM(df_MINI_DDSM, list_sub_folders,
+                                              path_base, mode_classification)

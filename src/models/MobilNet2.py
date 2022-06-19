@@ -30,14 +30,16 @@ def create_mobilNet():
     # !Intento de 2da configuración
     model.add(mobil_netv2_base)
     model.add(Flatten())
-    fully_connected = Sequential(name="Fully_Connected")
-    fully_connected.add(Dropout(0.2, seed=111, name="Dropout_1"))
-    fully_connected.add(Dense(units=512, activation='relu', name='Dense_1'))
+    # fully_connected = Sequential(name="Fully_Connected")
+    model.add(Dropout(0.2, seed=111, name="Dropout_1"))
+    model.add(Dense(units=512, activation='relu', name='Dense_1'))
     # fully_connected.add(Dropout(0.2, name="Dropout_2"))
-    fully_connected.add(Dense(units=32, activation='relu', name='Dense_2'))
-    fully_connected.add(Dense(2, activation='softmax'))
-    model.add(fully_connected)
-    
+    model.add(Dense(units=32, activation='relu', name='Dense_2'))
+    # fully_connected.add(Dense(1, activation='softmax'))
+    print("Si nueva configuración")
+    model.add(Dense(1, activation='sigmoid'))
+    # model.add(fully_connected)
+
     if config.DEBUG_MODE_MODELS:
         model.summary()
     return model

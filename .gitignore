@@ -1,3 +1,7 @@
+# Reegistro del Modelo y Registro de MLFlow
+model/
+mlruns/
+
 # Datasets MIAS
 .idea/*
 logs/

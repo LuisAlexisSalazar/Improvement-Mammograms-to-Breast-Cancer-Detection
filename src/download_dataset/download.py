@@ -12,14 +12,15 @@ URL_MIAS = "http://peipa.essex.ac.uk/pix/mias/all-mias.tar.gz"
 URL_MINI_DDSM = "https://www.kaggle.com/datasets/cheddad/miniddsm2/download"
 
 
-def download_data(dataset=config.DEFAULT_DATASET_USE):
+def download_data(dataset=config.DEFAULT_DATASET_USE, mode_download=config.DEFAULT_DATASET_USE):
     path_data_set = config.PATH_DATA_RAW  # "data/dataset_raw/"
     URL = config.DEFAULT_DATASET_URL
 
     # --MIAS
     if dataset == "MIAS":
         URL = URL_MIAS
-        path_data_set = path_data_set + "MIAS/"
+        copy_path_data_set = path_data_set + "MIAS/"
+        path_data_set = copy_path_data_set + "MIAS-RAW/"
         name_file = "MIAS.tar.gz"
         files = [f for f in os.listdir(path=path_data_set) if f == name_file]
         if len(files) == 0:
@@ -29,10 +30,9 @@ def download_data(dataset=config.DEFAULT_DATASET_USE):
 
         if len(files_pgm) == 0:
             unzip_tar(path_data_set, name_file)
-
+        path_data_set = copy_path_data_set
         # --Separar las imagenes en carpetas por clases
-        # *Por el momento separamos Normal y Maligno
-        separate_image_folders(path_data_set, name_dataset="MIAS")
+        separate_image_folders(path_data_set, name_dataset="MIAS", mode_classification=mode_download)
 
     # --MINI-DDSM
     # ?En el caso de kaggle necesita ya estar descargada el comprimido zip, el fragmento de codigo descomprime
@@ -51,4 +51,4 @@ def download_data(dataset=config.DEFAULT_DATASET_USE):
                     URL_MINI_DDSM +
                     " y ponerlo en la dirección data/data_raw/MINI-DDSM/"
                 )
-        separate_image_folders(path_data_set, name_dataset="MINI-DDSM")
+        separate_image_folders(path_data_set, name_dataset="MINI-DDSM", mode_classification=mode_download)
