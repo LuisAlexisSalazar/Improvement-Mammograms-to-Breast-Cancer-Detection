@@ -3,11 +3,15 @@ import tarfile
 
 import pandas as pd
 import cv2
-from src.settings.config import PATH_DATA_RAW, MODE_DOWNLOAD_DEFAULT
+from src.settings.config import *
 from src.utils.create_image import *
 from src.utils.folders import *
 
+import json
+import io
 
+
+# --Utilidades para la descarga de los datsets
 def unzip_zip(path_data_set, name_file):
     try:
         with zipfile.ZipFile(path_data_set + name_file, 'r') as zip_ref:
@@ -146,7 +150,7 @@ def separate_image_folders(path_base, name_dataset, mode_classification=MODE_DOW
                                               path_base, mode_classification)
     elif mode_classification == "ClassBMN":
 
-        path_binary_classification_benigno = dir_binary_classification + "/beningno"
+        path_binary_classification_benigno = dir_binary_classification + "/benigno"
         path_binary_classification_maligno = dir_binary_classification + "/maligno"
         path_binary_classification_normal = dir_binary_classification + "/normal"
         list_sub_folders = [path_binary_classification_benigno, path_binary_classification_maligno,
@@ -163,3 +167,102 @@ def separate_image_folders(path_base, name_dataset, mode_classification=MODE_DOW
                 df_MINI_DDSM = create_df_dataset_MINI_DDSM()
                 read_image_separate_MINI_DDSM(df_MINI_DDSM, list_sub_folders,
                                               path_base, mode_classification)
+
+
+# --Utilidad para ver la cantidad de datos en los folders
+def amount_images_to_classification(path_to_classification, mode_class):
+    path_benigno = path_to_classification + "/benigno"
+    path_maligno = path_to_classification + "/maligno"
+    path_normal = path_to_classification + "/normal"
+    path_tumoral = path_to_classification + "/tumoral"
+
+    # --Impresión de los paths
+    if DEBUG_MODE:
+        list = [path_benigno, path_maligno, path_normal, path_tumoral]
+        print(list)
+
+    if os.path.exists(path_benigno):
+        amount_benigno = len(os.listdir(path_benigno))
+
+    if os.path.exists(path_maligno):
+        amount_maligno = len(os.listdir(path_maligno))
+
+    if os.path.exists(path_normal):
+        amount_normal = len(os.listdir(path_normal))
+
+    if os.path.exists(path_tumoral):
+        amount_tumoral = len(os.listdir(path_tumoral))
+
+    # --Impresión de las cantidades
+    if DEBUG_MODE:
+        dict = {"amount_benigno": amount_benigno, "amount_maligno": amount_maligno, "amount_normal": amount_normal,
+                "amount_tumoral": amount_tumoral}
+        print(dict)
+
+    if mode_class == "BinaryNM":
+        print("Normal:", amount_normal)
+        print("Maligno:", amount_maligno)
+    elif mode_class == "BinaryBM":
+        print("Benigno:", amount_benigno)
+        print("Maligno:", amount_maligno)
+    elif mode_class == "BinaryBN":
+        print("Benigno:", amount_benigno)
+        print("Normal:", amount_normal)
+    elif mode_class == "Binary(BM)N":
+        print("Tumoral:", amount_tumoral)
+        print("Normal:", amount_normal)
+    else:  # mode_class == MODE_3_CLASS:
+        print("Benigno:", amount_benigno)
+        print("Maligno:", amount_maligno)
+        print("Normal:", amount_normal)
+
+
+# --Utilidades para guardar el modelo como files
+# Summary store in string
+# https://stackoverflow.com/questions/41665799/keras-model-summary-object-to-string
+# Guardar json la confiuración y cargar modelo con el json
+# https://moonbooks.org/Articles/How-to-save-the-architecture-of-a-tensorflow-model-summary-in-a-json-file-/
+# Guardar con MLFlow un txt
+# https://mlflow.org/docs/latest/python_api/mlflow.html#mlflow.log_text
+def get_model_summary(model):
+    stream = io.StringIO()
+    model.summary(print_fn=lambda x: stream.write(x + '\n'))
+    summary_string = stream.getvalue()
+    stream.close()
+    return summary_string
+
+
+# https://www.tensorflow.org/api_docs/python/tf/keras/layers/Layer#:~:text=get_config(self)%20%3A%20Returns%20a,model%20that%20contains%20this%20layer.
+# Guarda la arquitectura sin pesos
+# get_config: Devuelve un diccionario que contiene la configuración
+# utilizada para inicializar esta capa.
+def create_model_json(model):
+    # dict_architecture_model = model.get_config()
+    json_architecture_model = model.to_json()
+
+    # with open("architecture.json", "w") as outfile:
+    #     json.dump(dict_architecture_model, outfile)
+    with open("temp/architecture.json", "w") as f:
+        json.dump(json.loads(json_architecture_model), f)
+
+
+def create_summary_model_txt(model):
+    summary_as_string = get_model_summary(model)
+    summary_as_list = summary_as_string.split(sep='\n')
+    with open('temp/summary_model.txt', 'w') as f:
+        for item in summary_as_list:
+            f.write("%s\n" % item)
+
+
+def Save_model_summary_txt_architecture_json(model):
+    create_model_json(model)
+    create_summary_model_txt(model)
+    print("Summary en txt creado")
+    print("Arquitectura en json creado")
+
+# !MLFlow para qeu registre log de manera rapida
+# %%
+# Registrar el modelo mlFlow de manera rapida sin configurar nada
+# https://www.mlflow.org/docs/latest/python_api/mlflow.tensorflow.html
+# import mlflow.tensorflow
+# mlflow.tensorflow.autolog()

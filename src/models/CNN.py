@@ -5,7 +5,7 @@ from src.settings import config
 
 
 # *Metricas que podemos usar: accuracy, recision, recall,ConfusionMatrixPlot ()
-def create_basic_cnn_model():
+def create_basic_cnn_model(mode_class):
     """
     Function to create a basic CNN.
     :param num_classes: Numero de etiquetas.
@@ -25,8 +25,10 @@ def create_basic_cnn_model():
     # cnn_model.add(Dropout(0.5, seed=111, name="Dropout_1"))
     # FC
     cnn_model.add(Dense(16, activation='relu'))
-    cnn_model.add(Dense(1, activation='sigmoid'))
-
+    if mode_class in config.MODES_BINARY_CLASS:
+        cnn_model.add(Dense(1, activation='sigmoid', name='output'))
+    else:  # mode_class == MODE_3_CLASS:
+        cnn_model.add(Dense(3, activation='softmax', name='output'))
     if config.DEBUG_MODE_MODELS:
         cnn_model.summary()
     return cnn_model
