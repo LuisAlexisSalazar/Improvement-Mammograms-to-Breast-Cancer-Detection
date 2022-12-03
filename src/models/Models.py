@@ -30,6 +30,6 @@ def create_model(name_model, mode_classification):
     elif name_model == "ResNet50":
         return create_ResNet50(mode_classification)
     else:
-        print("Nombre de Red valida")
+        print("Nombre de Red invalida")
     return None
 # return create_mobilNet(mode_classification)

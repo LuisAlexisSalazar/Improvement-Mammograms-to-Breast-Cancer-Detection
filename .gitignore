@@ -17,6 +17,7 @@ data/dataset_raw/MINI-DDSM/MINI-DDSM-Complete-JPEG-8
 data/dataset_raw/MINI-DDSM/MINI-DDSM-Complete-PNG-16
 data/dataset_raw/MINI-DDSM/MINI-DDSM.zip
 *.pgm
+*.pdf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

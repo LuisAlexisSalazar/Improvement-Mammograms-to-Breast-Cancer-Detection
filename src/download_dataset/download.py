@@ -35,7 +35,6 @@ def download_data(dataset=config.DEFAULT_DATASET_USE, mode_download=config.DEFAU
         separate_image_folders(path_data_set, name_dataset="MIAS", mode_classification=mode_download)
 
     # --MINI-DDSM
-    # ?En el caso de kaggle necesita ya estar descargada el comprimido zip, el fragmento de codigo descomprime
     elif dataset == "MINI-DDSM":
         path_data_set = path_data_set + "MINI-DDSM/"
         name_file = "MINI-DDSM.zip"

@@ -1,8 +1,13 @@
 # *Limpieza de las variables
 import gc
+
 gc.collect()
 # *Visualización del modelo de keras
 # https://github.com/paulgavrikov/visualkeras
+# Ejemeplos
+# https://www.kaggle.com/code/devsubhash/visualize-deep-learning-models-using-visualkeras/notebook
+# Mas formas de visulizar
+# https://datascience.stackexchange.com/questions/12851/how-do-you-visualize-neural-network-architectures/44571#44571
 
 # *MLFlow: Registrar las metricas y parametros de nuestro modelo
 # https://medium.com/analytics-vidhya/mlflow-logging-for-tensorflow-37b6a6a53e3c
@@ -12,15 +17,18 @@ gc.collect()
 # Mejor configuración https://towardsdatascience.com/using-mlflow-to-track-and-version-machine-learning-models-efd5daa08df0
 # Buena documentación https://www.mlflow.org/docs/latest/python_api/mlflow.tensorflow.html
 #  --Imports to download data
-from src.download_dataset.download import download_data
+from src.download_dataset.download import create_df_dataset_MIAS,create_df_dataset_MINI_DDSM
 from src.settings.config import *
-#
+
+df = create_df_dataset_MIAS()
+print(df.head())
+
+
 # # --Download Data MIAS and MINI-CBIS
 # list_mode = ["BinaryNM", "BinaryBN", "Binary(BM)N", "ClassBMN"]
 #
 # for mode in list_mode:
 #     download_data("MINI-DDSM", mode)
-
 
 # !Seguir revisando el topico en github de brast cancer
 # https://github.com/topics/mammogram-images
@@ -76,5 +84,52 @@ from src.settings.config import *
 # qgrid_widget = qgrid.show_grid(df_mini_MIAS, show_toolbar=True)
 # qgrid_widget
 
-# ?Ejecucición de mlflow en linea de comando
+# ?-----------------Ejecucición de mlflow en linea de comando en consola---------------
 # mlflow ui --backend-store-uri mlruns
+
+
+# +----------------Ejecutar para visualizarKeras--------------------
+# import tensorflow as tf
+# from tensorflow.keras.layers import GlobalAveragePooling2D, Dense, Flatten, Dropout, Concatenate
+# from tensorflow.keras import Input, Model, Sequential
+# from src.settings import config
+# from tensorflow.keras.applications.vgg19 import VGG19
+# # --Transfer learning con VGG19
+# image_input = Input(shape=(224, 224, 1))
+# img_conc = Concatenate()([image_input, image_input, image_input])
+# # !VGG16 solo hace match con 3 canales de color
+# VGG19_base = VGG19(weights="imagenet",
+#                    input_tensor=img_conc,
+#                    include_top=False)
+# # VGG16_base = VGG16(input_tensor=image_input, include_top=True)
+#
+# # *Tomar desde la ultima capa antes de hacer flatten,desne,dense y predictore
+# last_layer = VGG19_base.get_layer('block5_pool').output
+# x = Flatten(name='flatten')(last_layer)
+# # +Capas completamente conectadas
+# x = Dense(128, activation='relu', name='fc1')(x)
+# x = Dropout(rate=0.3)(x)
+# x = Dense(128, activation='relu', name='fc2')(x)
+# x = Dropout(rate=0.3)(x)
+# out = Dense(3, activation='softmax', name='output')(x)
+# custom_model = Model(image_input, out)
+#
+# # ?Congelar los pesos menos las 6 capas
+# for layer in custom_model.layers[:-6]:
+#     layer.trainable = False
+#
+# # custom_model.summary()
+# from src.utils.utils import Save_model_summary_txt_architecture_json
+# Save_model_summary_txt_architecture_json(custom_model)
+#
+# # PLot other form
+# from keras.utils.vis_utils import plot_model
+# plot_model(custom_model, to_file='cnn_plot.png', show_shapes=True, show_layer_names=True)
+#
+# from PIL import ImageFont
+# import visualkeras
+# font = ImageFont.truetype("arial.ttf", 32)
+# visualkeras.layered_view(custom_model, legend=True, to_file='output.png',font=font).show()
+
+
+

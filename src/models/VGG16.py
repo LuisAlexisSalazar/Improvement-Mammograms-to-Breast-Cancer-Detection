@@ -1,7 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras.layers import GlobalAveragePooling2D, Dense, Flatten, Dropout,Concatenate
 from tensorflow.keras import Input, Model, Sequential
-
 from src.settings import config
 from tensorflow.keras.applications.vgg16 import VGG16
 
@@ -17,9 +16,7 @@ def create_VGG16(mode_classification):
     VGG16_base = VGG16(weights="imagenet",
                        input_tensor=img_conc,
                        include_top=True)
-    # VGG16_base = VGG16(input_tensor=image_input, include_top=True)
 
-    # *Tomar desde la ultima capa antes de hacer flatten,desne,dense y predictore
     last_layer = VGG16_base.get_layer('block5_pool').output
     x = Flatten(name='flatten')(last_layer)
     # --Capasa completamente conectadas

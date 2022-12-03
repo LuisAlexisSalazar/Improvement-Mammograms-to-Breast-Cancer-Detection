@@ -6,7 +6,8 @@ def read_image_separate_MIAS(df_dataset_MIAS,
                              path_to__classification,
                              mode_classification):
     folder_base_images = "/MINI-RAW"
-    df_dataset_MIAS = folder_base_images + folder_base_images
+    # print(path_to__classification)
+    # df_dataset_MIAS = folder_base_images + folder_base_images
     if mode_classification == "BinaryNM":
         # df_dataset_MIAS = df_dataset_MIAS.dropna(subset=['abn_class'])
         df_dataset_MIAS = df_dataset_MIAS.drop(df_dataset_MIAS[df_dataset_MIAS['abn_class'] == "B"].index)

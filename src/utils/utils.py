@@ -3,12 +3,13 @@ import tarfile
 
 import pandas as pd
 import cv2
-from src.settings.config import *
+from src.settings import config
 from src.utils.create_image import *
 from src.utils.folders import *
 
 import json
 import io
+import os
 
 
 # --Utilidades para la descarga de los datsets
@@ -36,7 +37,7 @@ def unzip_tar(path_data_set, name_file):
 
 
 # ? Leer información del MIAS
-def create_df_dataset_MIAS(file_path: str = PATH_DATA_RAW + "MIAS/info_MIAS.txt") -> pd.DataFrame:
+def create_df_dataset_MIAS(file_path: str = config.PATH_DATA_RAW + "MIAS/info_MIAS.txt") -> pd.DataFrame:
     # *Descripción de los campos del dataframe,
     # ?muchos campos seran Nan en la clase anormal porque no tienen anomalias son normales
     """
@@ -59,7 +60,7 @@ def create_df_dataset_MIAS(file_path: str = PATH_DATA_RAW + "MIAS/info_MIAS.txt"
 
 # ?Leer la información del MINI-DDSM en la carpeta JPEG-8 por ser mas ligero
 def create_df_dataset_MINI_DDSM(
-        file_path: str = PATH_DATA_RAW +
+        file_path: str = config.PATH_DATA_RAW +
                          "MINI-DDSM/MINI-DDSM-Complete-JPEG-8/DataWMask.xlsx") -> pd.DataFrame:
     """
     fullPath -> rota completa de donde se encuentra la imagen en jpg
@@ -80,8 +81,8 @@ def create_df_dataset_MINI_DDSM(
     return df_mammogram
 
 
-# ? path_base es el folder esta las iamgenes crudas
-def separate_image_folders(path_base, name_dataset, mode_classification=MODE_DOWNLOAD_DEFAULT):
+# ? path_base es el folder esta las imagenes crudas
+def separate_image_folders(path_base, name_dataset, mode_classification=config.MODE_DOWNLOAD_DEFAULT):
     dir_binary_classification = path_base + "/" + mode_classification
     if mode_classification == "BinaryNM":
         path_binary_classification_normal = dir_binary_classification + "/normal"
@@ -177,7 +178,7 @@ def amount_images_to_classification(path_to_classification, mode_class):
     path_tumoral = path_to_classification + "/tumoral"
 
     # --Impresión de los paths
-    if DEBUG_MODE:
+    if config.DEBUG_MODE:
         list = [path_benigno, path_maligno, path_normal, path_tumoral]
         print(list)
 
@@ -194,7 +195,7 @@ def amount_images_to_classification(path_to_classification, mode_class):
         amount_tumoral = len(os.listdir(path_tumoral))
 
     # --Impresión de las cantidades
-    if DEBUG_MODE:
+    if config.DEBUG_MODE:
         dict = {"amount_benigno": amount_benigno, "amount_maligno": amount_maligno, "amount_normal": amount_normal,
                 "amount_tumoral": amount_tumoral}
         print(dict)
@@ -260,9 +261,21 @@ def Save_model_summary_txt_architecture_json(model):
     print("Summary en txt creado")
     print("Arquitectura en json creado")
 
+
 # !MLFlow para qeu registre log de manera rapida
 # %%
 # Registrar el modelo mlFlow de manera rapida sin configurar nada
 # https://www.mlflow.org/docs/latest/python_api/mlflow.tensorflow.html
 # import mlflow.tensorflow
 # mlflow.tensorflow.autolog()
+
+# --Modulo Preprocessing
+def get_files_from_folder(list_paths):
+    list_list_paths_files = []
+    for path in list_paths:
+        name_files = os.listdir(path)
+        list_subfolder_file = []
+        for name_file in name_files:
+            list_subfolder_file.append(path + name_file)
+        list_list_paths_files.append(list_subfolder_file)
+    return list_list_paths_files
