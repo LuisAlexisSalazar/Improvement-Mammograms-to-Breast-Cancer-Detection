@@ -14,10 +14,10 @@ from src.settings import config
 # !Lo entrenamos completamente las capas no estan desactivadas
 def create_mobilNet(mode_classification):
     # !MobilNet solo hace match con 3 canales de color
-    image_input = Input(shape=(224, 224, 1))
-    img_conc = Concatenate()([image_input, image_input, image_input])
+    image_input = Input(shape=(224, 224, 3))
+
     mobil_net2_base = MobileNetV2(weights="imagenet",
-                                  include_top=False, input_tensor=img_conc)
+                                  include_top=False, input_tensor=image_input)
     # ?ultima de convolusión que es conv_pw_13_relu
     last_layer = mobil_net2_base.layers[-1].output
     x = Flatten(name='flatten')(last_layer)

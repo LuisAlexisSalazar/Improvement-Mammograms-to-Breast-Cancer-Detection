@@ -1,5 +1,8 @@
 # Reegistro del Modelo y Registro de MLFlow
+temp/
 model/
+data/*
+ExperimentosPF3/
 mlruns/
 .models/
 ~/

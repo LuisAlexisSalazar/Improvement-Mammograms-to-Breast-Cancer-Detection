@@ -7,12 +7,17 @@ from tensorflow.keras.applications.resnet50 import ResNet50
 
 
 def create_ResNet50(mode_classification):
-    # --Transfer learning con VGG16
-    image_input = Input(shape=(224, 224, 1))
-    img_conc = Concatenate()([image_input, image_input, image_input])
-
+    # --Transfer learning con ResNet50
+    # image_input = None
+    # img_conc = None
+    # if config.USE_DESCRIPTOR:
+    image_input = Input(shape=(224, 224, 3))
+    # else:
+    #     # --Transfer learning con VGG16
+    #     image_input = Input(shape=(224, 224, 1))
+    #     image_input = Concatenate()([image_input, image_input, image_input])
     ResNet50_base = ResNet50(weights="imagenet",
-                             input_tensor=img_conc,
+                             input_tensor=image_input,
                              include_top=False)  # no incluya la ultima capa
     # *Tomar desde la ultima capa que es de activación_49
     last_layer = ResNet50_base.layers[-1].output

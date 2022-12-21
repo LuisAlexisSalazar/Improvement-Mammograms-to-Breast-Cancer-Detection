@@ -9,10 +9,16 @@ from tensorflow.keras.applications.vgg19 import VGG19
 # https://iq.opengenus.org/vgg19-architecture/
 def create_VGG19(mode_classification):
     # --Transfer learning con VGG19
-    image_input = Input(shape=(224, 224, 1))
-    img_conc = Concatenate()([image_input, image_input, image_input])
+    image_input = Input(shape=(224, 224, 3))
+    # image_input = None
+    # if config.USE_DESCRIPTOR:
+    #     image_input = Input(shape=(224, 224, 3))
+    # else:
+    #     # --Transfer learning con VGG16
+    #     image_input = Input(shape=(224, 224, 1))
+    #     image_input = Concatenate()([image_input, image_input, image_input])
     VGG19_base = VGG19(weights="imagenet",
-                       input_tensor=img_conc,
+                       input_tensor=image_input,
                        include_top=False)
 
     last_layer = VGG19_base.get_layer('block5_pool').output
@@ -30,8 +36,8 @@ def create_VGG19(mode_classification):
 
     custom_model = Model(image_input, out)
     # ?Congelar los pesos menos las 6 capas
-    for layer in custom_model.layers[:-6]:
-        layer.trainable = False
+#     for layer in custom_model.layers[:-6]:
+#         layer.trainable = False
 
     if config.DEBUG_MODE_MODELS:
         custom_model.summary()
